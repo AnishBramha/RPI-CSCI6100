@@ -3,7 +3,8 @@
 Rensselaer Polytechnic Institute (RPI)
 CSCI6100
 
-Malik Magdon-Ismail
+Malik Magdon-Ismail's Lectures on YouTube
+
 
 
 
