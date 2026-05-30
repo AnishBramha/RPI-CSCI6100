@@ -33,28 +33,20 @@ def generate_data(N, w_f):
 
 
 
-def run_pla(X, y):
+def run_adaline(X, y, n, N_updates):
 
     w = np.zeros(X.shape[1])
-    iterations = 0
 
-    while True:
+    for _ in range(N_updates):
     
-        predictions = np.sign(np.dot(X, w))
-        predictions[predictions == 0] = -1
-        misclassified = np.where(predictions != y)[0]
+        idx = np.random.randint(0, X.shape[0])
+        s = np.dot(X[idx], w)
+        w += n * (y[idx] - s) * X[idx]
 
-        if len(misclassified) == 0:
-            break
-
-        idx = np.random.choice(misclassified)
-        w += y[idx] * X[idx]
-        iterations += 1
-
-    return w, iterations
+    return w
 
 
-def plot_experiment(X, y, w_f, w_g, iterations) -> None:
+def plot_experiment(X, y, w_f, w_g) -> None:
 
     plt.figure(figsize = (9, 7))
 
@@ -69,15 +61,14 @@ def plot_experiment(X, y, w_f, w_g, iterations) -> None:
     y_f = (-w_f[1] * x_vals - w_f[0]) / w_f[2]
     y_g = (-w_g[1] * x_vals - w_g[0]) / w_g[2]
 
-    plt.plot(x_vals, y_f, label = 'Target Function $f$', color = 'black', linestyle = '--', linewidth = 2)
-    plt.plot(x_vals, y_g, label = f'Hypothesis $g$ ({iterations} steps)', color = 'forestgreen', linestyle = '-', linewidth = 2)
+    plt.plot(x_vals, y_f, label = 'Target Function', color = 'black', linestyle = '--', linewidth = 2)
+    plt.plot(x_vals, y_g, label = f'Hypothesis', color = 'forestgreen', linestyle = '-', linewidth = 2)
 
     plt.xlim(-1.1, 1.1)
     plt.ylim(-1.1, 1.1)
     plt.axhline(0, color = 'grey', linewidth = 1, linestyle = ':')
     plt.axvline(0, color = 'grey', linewidth = 1, linestyle = ':')
     
-    plt.title(f'Perceptron Convergence for $N = 20$ ({iterations} iterations)', fontsize = 14)
     plt.xlabel('$x_1$', fontsize = 12)
     plt.ylabel('$x_2$', fontsize = 12)
     plt.legend(loc = 'upper right', frameon = True)
@@ -85,29 +76,24 @@ def plot_experiment(X, y, w_f, w_g, iterations) -> None:
     plt.show()
 
 
+
+
 def main() -> None:
 
-    N_c = 20
-    N_d = 100
-    N_e = 1000
-    N = N_e
+    N_training = 100
+    N_test = 10000
+    N_updates = 1000
+    eta = 0.0001
 
-    
     w_target = generate_target_line()
-    X_data, y_data = generate_data(N, w_target)
+    X_training, y_training = generate_data(N_training, w_target)
+    X_test, y_test = generate_data(N_test, w_target)
+    
+    w_hypothesis = run_adaline(X_training, y_training, eta, N_updates)
 
-    w_hypothesis, iterations = run_pla(X_data, y_data)
-
-    print(f'Algorithm converged in {iterations} iterations.')
-    print(f'Target weights (f):     {w_target}')
-    print(f'Hypothesis weights (g): {w_hypothesis}')
-
-    plot_experiment(X_data, y_data, w_target, w_hypothesis, iterations)
-
+    plot_experiment(X_test, y_test, w_target, w_hypothesis)
 
 if __name__ == '__main__': main()
-
-
 
 
 
